@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  stock-chart:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - ./charts:/app/charts
+      - ./fonts:/app/fonts
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped 
