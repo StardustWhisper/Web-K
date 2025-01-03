@@ -1,6 +1,6 @@
 # 使用多阶段构建
 # 第一阶段：Python构建环境
-FROM python:3.9-slim as builder
+FROM python:3.9-slim AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -40,11 +40,15 @@ RUN apk add --no-cache \
     python3-dev \
     gcc \
     musl-dev \
+    linux-headers \
     && fc-cache -f
 
 # 复制requirements.txt并安装依赖
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY requirements.txt /tmp/
+RUN cd /tmp && \
+    pip3 install --upgrade pip && \
+    pip3 install --no-cache-dir wheel setuptools && \
+    pip3 install --no-cache-dir -r requirements.txt
 
 # 从builder阶段复制应用文件
 COPY --from=builder /app /app
