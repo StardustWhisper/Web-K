@@ -37,10 +37,16 @@ RUN apk add --no-cache \
     py3-pip \
     ttf-dejavu \
     fontconfig \
+    python3-dev \
+    gcc \
+    musl-dev \
     && fc-cache -f
 
-# 从builder阶段复制Python环境和应用文件
-COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
+# 复制requirements.txt并安装依赖
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# 从builder阶段复制应用文件
 COPY --from=builder /app /app
 COPY --from=builder /usr/share/fonts/ /usr/share/fonts/
 
@@ -52,9 +58,8 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 # 设置环境变量
-ENV PYTHONPATH=/usr/local/lib/python3.9/site-packages
-ENV MPLCONFIGDIR=/tmp/matplotlib
 ENV PYTHONUNBUFFERED=1
+ENV MPLCONFIGDIR=/tmp/matplotlib
 
 # 创建matplotlib配置目录
 RUN mkdir -p /tmp/matplotlib && chmod 777 /tmp/matplotlib
