@@ -28,29 +28,19 @@ RUN mkdir -p charts fonts
 # 清理matplotlib字体缓存并重新生成
 RUN python3 -c "import matplotlib.pyplot as plt; plt.figure(); plt.close()"
 
-# 第二阶段：Nginx运行环境
-FROM nginx:alpine
+# 第二阶段：最终运行环境
+FROM python:3.9-slim
 
-# 安装Python和必要的包
-RUN apk add --no-cache \
-    python3 \
-    py3-pip \
-    ttf-dejavu \
-    fontconfig \
-    python3-dev \
-    gcc \
-    musl-dev \
-    linux-headers \
-    && fc-cache -f
+# 安装Nginx和其他依赖
+RUN apt-get update && apt-get install -y \
+    nginx \
+    fonts-noto-cjk \
+    fonts-noto-cjk-extra \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# 复制requirements.txt并安装依赖
-COPY requirements.txt /tmp/
-RUN cd /tmp && \
-    pip3 install --upgrade pip && \
-    pip3 install --no-cache-dir wheel setuptools && \
-    pip3 install --no-cache-dir -r requirements.txt
-
-# 从builder阶段复制应用文件
+# 从builder阶段复制Python环境和应用文件
+COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
 COPY --from=builder /app /app
 COPY --from=builder /usr/share/fonts/ /usr/share/fonts/
 
@@ -67,6 +57,9 @@ ENV MPLCONFIGDIR=/tmp/matplotlib
 
 # 创建matplotlib配置目录
 RUN mkdir -p /tmp/matplotlib && chmod 777 /tmp/matplotlib
+
+# 更新字体缓存
+RUN fc-cache -f
 
 # 暴露端口
 EXPOSE 80
