@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     fonts-noto-cjk \
     fonts-noto-cjk-extra \
+    fonts-dejavu \
+    fonts-liberation \
     fontconfig \
     && rm -rf /var/lib/apt/lists/*
 
@@ -37,6 +39,8 @@ RUN apt-get update && apt-get install -y \
     nginx \
     fonts-noto-cjk \
     fonts-noto-cjk-extra \
+    fonts-dejavu \
+    fonts-liberation \
     fontconfig \
     curl \
     && rm -rf /var/lib/apt/lists/*

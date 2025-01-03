@@ -6,13 +6,25 @@ chown -R www-data:www-data /var/log/nginx /var/lib/nginx
 # 确保字体缓存是最新的
 fc-cache -fv
 
-# 初始化matplotlib
+# 列出可用字体（用于调试）
+fc-list : family
+
+# 初始化matplotlib并测试字体
 python3 -c "
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
+
+# 测试中文字体
 plt.figure()
+plt.title('测试中文字体')
 plt.close()
+
+# 打印可用字体
+import matplotlib.font_manager as fm
+fonts = [f.name for f in fm.fontManager.ttflist]
+print('Available fonts:', sorted(set(fonts)))
 " || exit 1
 
 # 检查Python依赖

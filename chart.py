@@ -337,17 +337,33 @@ def setup_log_scale(ax, log_base='10'):
 
 def setup_chinese_font():
     """设置中文字体"""
-    # 使用相对路径查找字体
-    if os.path.exists(FONTS_DIR):
-        font_files = [f for f in os.listdir(FONTS_DIR) if f.endswith(('.ttf', '.otf'))]
-        if font_files:
-            font = FontProperties(fname=os.path.join(FONTS_DIR, font_files[0]))
-            return font
+    # 设置备选字体列表
+    font_list = [
+        'Noto Sans CJK JP',
+        'Noto Sans CJK SC',
+        'DejaVu Sans',
+        'Liberation Sans',
+        'Arial',
+        'Helvetica'
+    ]
     
-    # 如果没有找到自定义字体，使用系统默认字体
-    matplotlib.rcParams['font.sans-serif'] = ['Arial Unicode MS']
+    # 配置matplotlib字体
+    matplotlib.rcParams['font.family'] = 'sans-serif'
+    matplotlib.rcParams['font.sans-serif'] = font_list
     matplotlib.rcParams['axes.unicode_minus'] = False
-    return FontProperties(family='Arial Unicode MS')
+    
+    # 尝试使用系统字体
+    for font_name in font_list:
+        try:
+            font = FontProperties(family=font_name)
+            # 测试字体是否可用
+            if font.get_name() != 'DejaVu Sans':  # 默认回退字体
+                return font
+        except:
+            continue
+    
+    # 如果没有找到合适的字体，使用默认字体
+    return FontProperties()
 
 def generate_chart_filename(code, name, days=None, log_scale=None, adjust='qfq'):
     """生成图表文件名"""
