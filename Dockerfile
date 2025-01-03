@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     fonts-noto-cjk \
     fonts-noto-cjk-extra \
+    fontconfig \
     && rm -rf /var/lib/apt/lists/*
 
 # 复制项目文件
@@ -36,6 +37,7 @@ RUN apt-get update && apt-get install -y \
     nginx \
     fonts-noto-cjk \
     fonts-noto-cjk-extra \
+    fontconfig \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -45,7 +47,7 @@ COPY --from=builder /app /app
 COPY --from=builder /usr/share/fonts/ /usr/share/fonts/
 
 # 配置Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/sites-available/default
 
 # 创建启动脚本
 COPY docker-entrypoint.sh /docker-entrypoint.sh
@@ -55,11 +57,14 @@ RUN chmod +x /docker-entrypoint.sh
 ENV PYTHONUNBUFFERED=1
 ENV MPLCONFIGDIR=/tmp/matplotlib
 
-# 创建matplotlib配置目录
-RUN mkdir -p /tmp/matplotlib && chmod 777 /tmp/matplotlib
+# 创建必要的目录
+RUN mkdir -p /tmp/matplotlib && chmod 777 /tmp/matplotlib && \
+    mkdir -p /var/log/nginx && \
+    mkdir -p /var/lib/nginx/body && \
+    mkdir -p /run/nginx
 
 # 更新字体缓存
-RUN fc-cache -f
+RUN fc-cache -fv
 
 # 暴露端口
 EXPOSE 80

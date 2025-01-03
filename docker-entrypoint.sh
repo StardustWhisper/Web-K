@@ -1,7 +1,10 @@
 #!/bin/sh
 
+# 确保Nginx目录权限正确
+chown -R www-data:www-data /var/log/nginx /var/lib/nginx
+
 # 确保字体缓存是最新的
-fc-cache -f
+fc-cache -fv
 
 # 初始化matplotlib
 python3 -c "
